@@ -3,23 +3,27 @@ import "./TNode.css";
 
 export default class TNode extends Component {
   render() {
-      const {
-          row,
-          col,
-          isSart,
-          isFinish,
-          isVisited
-      } = this.props;
+    const {
+      row,
+      col,
+      isStart,
+      isFinish,
+      isVisited,
+      onClick,
+    } = this.props;
 
-      const extraClassName = 
-      isSart ? "TNode-start" :
-      isFinish ? "TNode-finish" :
-      "";
+    const extraClassName = isStart
+      ? "TNode-start"
+      : isFinish
+      ? "TNode-finish"
+      : "";
 
     return (
-      <div className="TNode">
-        
-      </div>
+      <div
+        // id={`node-${row}-${col}`}
+        className={`TNode ${extraClassName}`}
+        onClick={() => onClick(row, col)}
+      ></div>
     );
   }
 }

@@ -7,5 +7,9 @@
 }
 
 .TNode-start {
-    background-color: green;
+  background-color: green;
+}
+
+.TNode-finish {
+  background-color: rgb(209, 103, 4);
 }

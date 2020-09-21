@@ -1,47 +1,93 @@
 import React, { Component } from "react";
 import TNode from "./TNode";
 import "../grid.css";
+import "../message.css";
 
-const startX = 7;
-const startY = 30;
-const finishX = 25;
-const finishY = 30;
+let isStart = true;
+let isFinish = false;
 
 export default class PathfindingVisualizer extends Component {
   constructor() {
     super();
-    this.setState = {
+    this.state = {
       grid: [],
+      startFinishIndexes: [],
+      message: "choose start node",
+      // mouseIsPressed: false
     };
   }
 
-  // componentDidMount() {
-  //   const grid = getGrid();
-  //   this.setState({ grid });
-  // }
+  componentDidMount() {
+    const grid = getGrid();
+    this.setState({ grid });
+  }
+
+  onClick(row, col) {
+    if (isStart == true && isFinish == false) {
+      this.state.startFinishIndexes.push(row);
+      this.state.startFinishIndexes.push(col);
+
+      const newGrid = getNewGrid(this.state.grid, row, col, isStart, isFinish);
+      this.setState({ grid: newGrid });
+
+      isStart = false;
+      isFinish = true;
+      this.state.message = "choose finish node";
+    } else if (isStart == false && isFinish) {
+      const node = this.state.grid[row][col];
+      this.state.message = "put walls if you want to";
+
+      if (!node.isStart) {
+        this.state.startFinishIndexes.push(row);
+        this.state.startFinishIndexes.push(col);
+        const newGrid = getNewGrid(
+          this.state.grid,
+          row,
+          col,
+          isStart,
+          isFinish
+        );
+        this.setState({ grid: newGrid });
+        isFinish = false;
+      }
+    }
+  }
 
   render() {
+    const { grid } = this.state;
+
     return (
-      <div className="grid">
-        {getGrid().map((row, rowIndex) => {
-          return (
-            <div key={rowIndex}>
-              {row.map((node, nodeIndex) => {
-                const { row, col, isStart, isFinish, isVisited } = node;
-                return (
-                  <TNode
-                    key={nodeIndex}
-                    row={row}
-                    col={col}
-                    isStart={isStart}
-                    isFinish={isFinish}
-                    isVisited={isVisited}
-                  ></TNode>
-                );
-              })}
-            </div>
-          );
-        })}
+      <div>
+        <div className="message">
+          <code>{this.state.message}</code>
+        </div>
+
+        <div className="large blue button">
+          get path
+        </div>
+
+        <div className="grid">
+          {grid.map((row, rowIndex) => {
+            return (
+              <div key={rowIndex}>
+                {row.map((node, nodeIndex) => {
+                  const { row, col, isStart, isFinish, isVisited } = node;
+                  return (
+                    <TNode
+                      key={nodeIndex}
+                      row={row}
+                      col={col}
+                      isStart={isStart}
+                      isFinish={isFinish}
+                      isVisited={isVisited}
+                      onClick={(row, col) => this.onClick(row, col)}
+                    ></TNode>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }
@@ -65,8 +111,34 @@ const createNode = (row, col) => {
   return {
     row: row,
     col: col,
-    isStart: row == startX && col == startY,
-    isFinish: row == finishX && col == finishY,
+    isStart: false,
+    isFinish: false,
     isVisited: false,
   };
+};
+
+const getNewGrid = (grid, row, col, isStart, isFinish) => {
+  if (isStart) {
+    const newGrid = grid.slice();
+    const node = newGrid[row][col];
+    const newNode = {
+      ...node,
+      isStart: isStart,
+    };
+
+    newGrid[row][col] = newNode;
+    return newGrid;
+  }
+
+  if (isFinish) {
+    const newGrid = grid.slice();
+    const node = newGrid[row][col];
+    const newNode = {
+      ...node,
+      isFinish: isFinish,
+    };
+
+    newGrid[row][col] = newNode;
+    return newGrid;
+  }
 };
