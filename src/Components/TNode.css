@@ -1,0 +1,11 @@
+.TNode {
+  height: 30px;
+  width: 30px;
+  background-color: rgb(71, 79, 87);
+  display: inline-block;
+  outline: 1px solid rgb(175, 216, 248);
+}
+
+.TNode-start {
+    background-color: green;
+}
