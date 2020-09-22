@@ -9,13 +9,19 @@ export default class TNode extends Component {
       isStart,
       isFinish,
       isVisited,
+      isWall,
       onClick,
+      onMouseDown,
+      onMouseEnter,
+      onMouseUp
     } = this.props;
 
     const extraClassName = isStart
       ? "TNode-start"
       : isFinish
       ? "TNode-finish"
+      : isWall
+      ? "TNode-wall"
       : "";
 
     return (
@@ -23,6 +29,9 @@ export default class TNode extends Component {
         // id={`node-${row}-${col}`}
         className={`TNode ${extraClassName}`}
         onClick={() => onClick(row, col)}
+        onMouseDown={() => onMouseDown(row, col)}
+        onMouseEnter={() => onMouseEnter(row, col)}
+        onMouseUp={() => onMouseUp()}
       ></div>
     );
   }

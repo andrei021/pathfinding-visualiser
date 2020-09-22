@@ -13,7 +13,8 @@ export default class PathfindingVisualizer extends Component {
       grid: [],
       startFinishIndexes: [],
       message: "choose start node",
-      // mouseIsPressed: false
+      buttonIsActive: "false",
+      mouseIsPressed: false,
     };
   }
 
@@ -22,12 +23,29 @@ export default class PathfindingVisualizer extends Component {
     this.setState({ grid });
   }
 
+  onMouseDown(row, col) {
+    let indexesLength = this.state.startFinishIndexes.length;
+    if (indexesLength != 4) return;
+    const newGrid = getNewGrid(this.state.grid, row, col, "isWall");
+    this.setState({ grid: newGrid, mouseIsPressed: true });
+  }
+
+  onMouseEnter(row, col) {
+    if (!this.state.mouseIsPressed) return;
+    const newGrid = getNewGrid(this.state.grid, row, col, "isWall");
+    this.setState({ grid: newGrid });
+  }
+
+  onMouseUp() {
+    this.setState({ mouseIsPressed: false });
+  }
+
   onClick(row, col) {
     if (isStart == true && isFinish == false) {
       this.state.startFinishIndexes.push(row);
       this.state.startFinishIndexes.push(col);
 
-      const newGrid = getNewGrid(this.state.grid, row, col, isStart, isFinish);
+      const newGrid = getNewGrid(this.state.grid, row, col, "isStart");
       this.setState({ grid: newGrid });
 
       isStart = false;
@@ -35,26 +53,21 @@ export default class PathfindingVisualizer extends Component {
       this.state.message = "choose finish node";
     } else if (isStart == false && isFinish) {
       const node = this.state.grid[row][col];
-      this.state.message = "put walls if you want to";
+      this.state.message =
+        "put walls if you want to; u can also keep mouse clicked";
 
       if (!node.isStart) {
         this.state.startFinishIndexes.push(row);
         this.state.startFinishIndexes.push(col);
-        const newGrid = getNewGrid(
-          this.state.grid,
-          row,
-          col,
-          isStart,
-          isFinish
-        );
-        this.setState({ grid: newGrid });
+        const newGrid = getNewGrid(this.state.grid, row, col, "isFinish");
+        this.setState({ grid: newGrid, buttonIsActive: "" });
         isFinish = false;
       }
     }
   }
 
   render() {
-    const { grid } = this.state;
+    const { grid, mouseIsPressed } = this.state;
 
     return (
       <div>
@@ -62,8 +75,8 @@ export default class PathfindingVisualizer extends Component {
           <code>{this.state.message}</code>
         </div>
 
-        <div className="large blue button">
-          get path
+        <div disabled={this.state.buttonIsActive} className="large blue button">
+          get shortest path
         </div>
 
         <div className="grid">
@@ -71,7 +84,14 @@ export default class PathfindingVisualizer extends Component {
             return (
               <div key={rowIndex}>
                 {row.map((node, nodeIndex) => {
-                  const { row, col, isStart, isFinish, isVisited } = node;
+                  const {
+                    row,
+                    col,
+                    isStart,
+                    isFinish,
+                    isVisited,
+                    isWall,
+                  } = node;
                   return (
                     <TNode
                       key={nodeIndex}
@@ -80,7 +100,14 @@ export default class PathfindingVisualizer extends Component {
                       isStart={isStart}
                       isFinish={isFinish}
                       isVisited={isVisited}
+                      isWall={isWall}
+                      mouseIsPressed={mouseIsPressed}
                       onClick={(row, col) => this.onClick(row, col)}
+                      onMouseDown={(row, col) => this.onMouseDown(row, col)}
+                      onMouseEnter={(row, col) => this.onMouseEnter(row, col)}
+                      onMouseUp={() => {
+                        this.onMouseUp();
+                      }}
                     ></TNode>
                   );
                 })}
@@ -114,31 +141,18 @@ const createNode = (row, col) => {
     isStart: false,
     isFinish: false,
     isVisited: false,
+    isWall: false,
   };
 };
 
-const getNewGrid = (grid, row, col, isStart, isFinish) => {
-  if (isStart) {
-    const newGrid = grid.slice();
-    const node = newGrid[row][col];
-    const newNode = {
-      ...node,
-      isStart: isStart,
-    };
+const getNewGrid = (grid, row, col, prop) => {
+  const newGrid = grid.slice();
+  const node = newGrid[row][col];
+  const newNode = {
+    ...node,
+  };
 
-    newGrid[row][col] = newNode;
-    return newGrid;
-  }
-
-  if (isFinish) {
-    const newGrid = grid.slice();
-    const node = newGrid[row][col];
-    const newNode = {
-      ...node,
-      isFinish: isFinish,
-    };
-
-    newGrid[row][col] = newNode;
-    return newGrid;
-  }
+  newNode[prop] = true;
+  newGrid[row][col] = newNode;
+  return newGrid;
 };
