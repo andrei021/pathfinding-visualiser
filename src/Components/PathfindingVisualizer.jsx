@@ -26,12 +26,20 @@ export default class PathfindingVisualizer extends Component {
   onMouseDown(row, col) {
     let indexesLength = this.state.startFinishIndexes.length;
     if (indexesLength != 4) return;
+
+    const node = this.state.grid[row][col];
+    if (node.isStart || node.isFinish) return;
+
     const newGrid = getNewGrid(this.state.grid, row, col, "isWall");
     this.setState({ grid: newGrid, mouseIsPressed: true });
   }
 
   onMouseEnter(row, col) {
     if (!this.state.mouseIsPressed) return;
+
+    const node = this.state.grid[row][col];
+    if (node.isStart || node.isFinish) return;
+
     const newGrid = getNewGrid(this.state.grid, row, col, "isWall");
     this.setState({ grid: newGrid });
   }
@@ -54,7 +62,7 @@ export default class PathfindingVisualizer extends Component {
     } else if (isStart == false && isFinish) {
       const node = this.state.grid[row][col];
       this.state.message =
-        "put walls if you want to; u can also keep mouse clicked";
+        "put walls if you want to; u can also keep the mouse clicked";
 
       if (!node.isStart) {
         this.state.startFinishIndexes.push(row);
@@ -142,6 +150,8 @@ const createNode = (row, col) => {
     isFinish: false,
     isVisited: false,
     isWall: false,
+    prevNode: null,
+    distance: Infinity,
   };
 };
 
