@@ -26,7 +26,7 @@ export default class TNode extends Component {
 
     return (
       <div
-        id={`node-${row}-${col}`}
+        id={`TNode-${row}-${col}`}
         className={`TNode ${extraClassName}`}
         onClick={() => onClick(row, col)}
         onMouseDown={() => onMouseDown(row, col)}
